@@ -68,6 +68,21 @@ class SpatialMetadata(p.SingletonPlugin):
     def edit(self, package):
         self.check_spatial_extra(package)
 
+    def retrieve_json(self, name):
+        try:
+            geo_tags = p.toolkit.get_action('tag_list')(
+            data_dict={'vocabulary_id': 'geo_tags', 'all_fields' : True})
+            for tag in geo_tags:
+                if tag.get('name')==name:
+                    log.info('rovnake meno')
+                    related_info = p.toolkit.get_action('ckanext_dataset_get_tag_info')(data_dict={'tag_id': tag.get('id'), 'key' : 'spatial'})
+                    log.info(related_info)
+                    if len(related_info)==1:
+                        return related_info[0].value
+            return None
+        except p.toolkit.ObjectNotFound:
+            return None
+
     def check_spatial_extra(self,package):
         '''
         For a given package, looks at the spatial extent (as given in the
@@ -82,6 +97,11 @@ class SpatialMetadata(p.SingletonPlugin):
             if extra.key == 'spatial':
                 if extra.state == 'active' and extra.value:
                     try:
+                        new_value = self.retrieve_json(extra.value)
+                        if new_value:
+                            extra.value = str(new_value)
+                        log.debug('Received: %r' % extra.value)
+                        geometry = json.loads(extra.value)
                         log.debug('Received: %r' % extra.value)
                         geometry = json.loads(extra.value)
                     except ValueError,e:

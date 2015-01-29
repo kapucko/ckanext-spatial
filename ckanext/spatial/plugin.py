@@ -76,7 +76,7 @@ class SpatialMetadata(p.SingletonPlugin):
                 if tag.get('name')==name:
                     log.info('rovnake meno')
                     related_info = p.toolkit.get_action('ckanext_dataset_get_tag_info')(data_dict={'tag_id': tag.get('id'), 'key' : 'spatial'})
-                    log.info(related_info)
+                    #log.info(related_info)
                     if len(related_info)==1:
                         return related_info[0].value
             return None
